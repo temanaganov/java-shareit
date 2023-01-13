@@ -34,11 +34,11 @@ public class UserService {
 
         if (dto.getEmail() != null) {
             checkIfEmailIsBusy(dto.getEmail());
-            user = user.withEmail(dto.getEmail());
+            user.setEmail(dto.getEmail());
         }
 
         if (dto.getName() != null) {
-            user = user.withName(dto.getName());
+            user.setName(dto.getName());
         }
 
         return userRepository.update(user);

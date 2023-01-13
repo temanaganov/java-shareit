@@ -1,14 +1,12 @@
 package ru.practicum.shareit.user;
 
 import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import lombok.Data;
 
-@With
-@Value
+@Data
 @Builder
 public class User {
-    Long id;
-    String name;
-    String email;
+    private Long id;
+    private String name;
+    private String email;
 }

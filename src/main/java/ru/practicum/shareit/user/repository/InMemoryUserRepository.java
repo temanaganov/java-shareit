@@ -29,10 +29,10 @@ public class InMemoryUserRepository implements UserRepository {
 
     public User create(User user) {
         long id = getNextId();
-        User newUser = user.withId(id);
-        users.put(id, newUser);
+        user.setId(id);
+        users.put(id, user);
 
-        return newUser;
+        return user;
     }
 
     public User update(User user) {

@@ -49,15 +49,15 @@ public class ItemService {
         }
 
         if (dto.getName() != null) {
-            item = item.withName(dto.getName());
+            item.setName(dto.getName());
         }
 
         if (dto.getDescription() != null) {
-            item = item.withDescription(dto.getDescription());
+            item.setDescription(dto.getDescription());
         }
 
         if (dto.getAvailable() != null) {
-            item = item.withAvailable(dto.getAvailable());
+            item.setAvailable(dto.getAvailable());
         }
 
         return itemRepository.update(item);

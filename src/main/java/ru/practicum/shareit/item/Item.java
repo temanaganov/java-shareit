@@ -1,17 +1,15 @@
 package ru.practicum.shareit.item;
 
 import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import lombok.Data;
 
-@With
-@Value
+@Data
 @Builder
 public class Item {
-    long id;
-    String name;
-    String description;
-    Boolean available;
-    long owner;
-    long request;
+    private long id;
+    private String name;
+    private String description;
+    private Boolean available;
+    private long owner;
+    private long request;
 }

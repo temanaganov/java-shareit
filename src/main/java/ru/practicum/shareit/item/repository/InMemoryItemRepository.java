@@ -45,10 +45,10 @@ public class InMemoryItemRepository implements ItemRepository {
     @Override
     public Item create(Item item) {
         long id = getNextId();
-        Item newItem = item.withId(id);
-        items.put(id, newItem);
+        item.setId(id);
+        items.put(id, item);
 
-        return newItem;
+        return item;
     }
 
     @Override
