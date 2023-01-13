@@ -15,6 +15,7 @@ import java.util.List;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
+    private final ItemMapper itemMapper;
 
     public List<Item> getAll(long userId) {
         return itemRepository.getByUserId(userId);
@@ -30,12 +31,8 @@ public class ItemService {
 
     public Item create(long userId, CreateItemDto dto) {
         userService.getById(userId);
-        Item newItem = Item.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .available(dto.getAvailable())
-                .owner(userId)
-                .build();
+        Item newItem = itemMapper.createItemDtoToItem(dto);
+        newItem.setOwner(userId);
 
         return itemRepository.create(newItem);
     }

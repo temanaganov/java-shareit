@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public List<User> getAll() {
         return userRepository.getAll();
@@ -24,7 +25,7 @@ public class UserService {
 
     public User create(CreateUserDto dto) {
         checkIfEmailIsBusy(dto.getEmail());
-        User newUser = User.builder().name(dto.getName()).email(dto.getEmail()).build();
+        User newUser = userMapper.createUserDtoToUser(dto);
 
         return userRepository.create(newUser);
     }
