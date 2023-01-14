@@ -1,10 +1,10 @@
 package ru.practicum.shareit.core.exception;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@RequiredArgsConstructor
+@Data
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class FieldValidationException extends RuntimeException {
     private final String field;

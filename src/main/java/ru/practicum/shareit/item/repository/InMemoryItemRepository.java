@@ -19,7 +19,7 @@ public class InMemoryItemRepository implements ItemRepository {
     public List<Item> getByUserId(long userId) {
         return items.values()
                 .stream()
-                .filter(item -> item.getOwner() == userId)
+                .filter(item -> item.getOwner().getId() == userId)
                 .collect(Collectors.toList());
     }
 
@@ -31,9 +31,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
         return items.values()
                 .stream()
-                .filter(item -> item.getAvailable() && (
-                        item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                                item.getDescription().toLowerCase().contains(text.toLowerCase())))
+                .filter(item -> isItemAvailableAndContainsText(item, text))
                 .collect(Collectors.toList());
     }
 
@@ -65,5 +63,12 @@ public class InMemoryItemRepository implements ItemRepository {
 
     private long getNextId() {
         return ++id;
+    }
+
+    private boolean isItemAvailableAndContainsText(Item item, String text) {
+        boolean isNameContainsText = item.getName().toLowerCase().contains(text.toLowerCase());
+        boolean isDescriptionContainsText = item.getDescription().toLowerCase().contains(text.toLowerCase());
+
+        return item.getAvailable() && (isNameContainsText || isDescriptionContainsText);
     }
 }

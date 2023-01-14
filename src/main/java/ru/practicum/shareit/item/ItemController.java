@@ -23,12 +23,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
-    private final String userIdHeader = "X-Sharer-User-Id";
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getAll(@RequestHeader(name = userIdHeader) long userId) {
-        return itemService.getAll(userId);
+    public List<Item> getByUserId(@RequestHeader(name = USER_ID_HEADER) long userId) {
+        return itemService.getByUserId(userId);
     }
 
     @GetMapping("/search")
@@ -43,14 +43,14 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Item create(@RequestHeader(name = userIdHeader) long userId, @Valid @RequestBody CreateItemDto dto) {
+    public Item create(@RequestHeader(name = USER_ID_HEADER) long userId, @Valid @RequestBody CreateItemDto dto) {
         return itemService.create(userId, dto);
     }
 
     @PatchMapping("/{id}")
     public Item update(
             @PathVariable long id,
-            @RequestHeader(name = userIdHeader) long userId,
+            @RequestHeader(name = USER_ID_HEADER) long userId,
             @Valid @RequestBody UpdateItemDto dto
     ) {
         return itemService.update(id, userId, dto);

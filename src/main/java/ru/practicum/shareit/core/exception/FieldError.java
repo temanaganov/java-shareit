@@ -1,17 +1,9 @@
 package ru.practicum.shareit.core.exception;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@RequiredArgsConstructor
+@Data
 public class FieldError {
     private final String field;
     private final String description;
-
-    public String getField() {
-        return field;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

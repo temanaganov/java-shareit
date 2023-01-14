@@ -24,7 +24,7 @@ public class UserService {
     }
 
     public User create(CreateUserDto dto) {
-        checkIfEmailIsBusy(dto.getEmail());
+        checkIfEmailExists(dto.getEmail());
         User newUser = userMapper.createUserDtoToUser(dto);
 
         return userRepository.create(newUser);
@@ -34,7 +34,7 @@ public class UserService {
         User user = userRepository.getById(id).orElseThrow(() -> new NotFoundException("user", id));
 
         if (dto.getEmail() != null) {
-            checkIfEmailIsBusy(dto.getEmail());
+            checkIfEmailExists(dto.getEmail());
             user.setEmail(dto.getEmail());
         }
 
@@ -49,7 +49,7 @@ public class UserService {
         return userRepository.delete(id).orElseThrow(() -> new NotFoundException("user", id));
     }
 
-    private void checkIfEmailIsBusy(String email) {
+    private void checkIfEmailExists(String email) {
         userRepository.getByEmail(email).ifPresent(user -> {
             throw new DuplicatedEmailException(email);
         });
