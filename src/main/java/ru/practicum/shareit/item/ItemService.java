@@ -34,18 +34,20 @@ public class ItemService {
     private final CommentRepository commentRepository;
 
     public List<Item> getByUserId(long userId) {
-        return itemRepository.findAllByOwner_Id(userId)
+        return itemRepository.findAllByOwnerId(userId)
                 .stream()
-                .peek(item -> {
-                    List<Booking> bookings = bookingRepository.findAllByItem_IdOrderByStartAsc(item.getId());
+                .map(item -> {
+                    List<Booking> bookings = bookingRepository.findAllByItemIdOrderByStartAsc(item.getId());
                     item.setNextBooking(bookingMapper.bookingToShortBookingDto(getNextBooking(bookings)));
                     item.setLastBooking(bookingMapper.bookingToShortBookingDto(getLastBooking(bookings)));
                     item.setComments(
-                            commentRepository.findAllByItem_Id(item.getId())
+                            commentRepository.findAllByItemId(item.getId())
                                     .stream()
                                     .map(commentMapper::commentToCommentDto)
                                     .collect(Collectors.toList())
                     );
+
+                    return item;
                 })
                 .collect(Collectors.toList());
     }
@@ -62,14 +64,14 @@ public class ItemService {
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
 
         if (item.getOwner().getId() == userId) {
-            List<Booking> bookings = bookingRepository.findAllByItem_IdOrderByStartAsc(id);
+            List<Booking> bookings = bookingRepository.findAllByItemIdOrderByStartAsc(id);
 
             item.setNextBooking(bookingMapper.bookingToShortBookingDto(getNextBooking(bookings)));
             item.setLastBooking(bookingMapper.bookingToShortBookingDto(getLastBooking(bookings)));
         }
 
         item.setComments(
-                commentRepository.findAllByItem_Id(item.getId())
+                commentRepository.findAllByItemId(item.getId())
                         .stream()
                         .map(commentMapper::commentToCommentDto)
                         .collect(Collectors.toList())
@@ -135,7 +137,7 @@ public class ItemService {
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
         User user = userService.getById(userId);
 
-        List<Booking> bookings = bookingRepository.findAllByBooker_IdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+        List<Booking> bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
 
         if (bookings.isEmpty()) {
             throw new FieldValidationException("userId", "User didn't book this item");

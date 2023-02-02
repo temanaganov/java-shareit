@@ -43,13 +43,13 @@ public class ExceptionsHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> duplicatedExceptionHandler(DuplicatedEmailException exception) {
-        log.error(exception.getMessage());
+        log.error("Duplicated email", exception);
         return Map.of("error", exception.getMessage());
     }
 
     @ExceptionHandler
     public Map<String, String> unsupportedStatusExceptionHandler(UnsupportedStatusException exception) {
-        log.error(exception.getMessage());
+        log.error("Unsupported status of booking", exception);
         return Map.of("error", exception.getMessage());
     }
 
