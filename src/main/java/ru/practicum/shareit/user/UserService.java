@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.CreateUserDto;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -16,41 +15,43 @@ public class UserService {
     private final UserMapper userMapper;
 
     public List<User> getAll() {
-        return userRepository.getAll();
+        return userRepository.findAll();
     }
 
     public User getById(long id) {
-        return userRepository.getById(id).orElseThrow(() -> new NotFoundException("user", id));
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("user", id));
     }
 
     public User create(CreateUserDto dto) {
-        checkIfEmailExists(dto.getEmail());
+//        checkIfEmailExists(dto.getEmail());
         User newUser = userMapper.createUserDtoToUser(dto);
 
-        return userRepository.create(newUser);
+        return userRepository.save(newUser);
     }
 
     public User update(long id, UpdateUserDto dto) {
-        User user = userRepository.getById(id).orElseThrow(() -> new NotFoundException("user", id));
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("user", id));
 
-        if (dto.getEmail() != null) {
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             checkIfEmailExists(dto.getEmail());
             user.setEmail(dto.getEmail());
         }
 
-        if (dto.getName() != null) {
+        if (dto.getName() != null && !dto.getName().isBlank()) {
             user.setName(dto.getName());
         }
 
-        return userRepository.update(user);
+        return userRepository.save(user);
     }
 
     public User delete(long id) {
-        return userRepository.delete(id).orElseThrow(() -> new NotFoundException("user", id));
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("user", id));
+        userRepository.deleteById(id);
+        return user;
     }
 
     private void checkIfEmailExists(String email) {
-        userRepository.getByEmail(email).ifPresent(user -> {
+        userRepository.findByEmail(email).ifPresent(user -> {
             throw new DuplicatedEmailException(email);
         });
     }

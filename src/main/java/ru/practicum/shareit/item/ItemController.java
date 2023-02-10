@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 
@@ -37,8 +39,8 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public Item getById(@PathVariable long id) {
-        return itemService.getById(id);
+    public Item getById(@PathVariable long id, @RequestHeader(name = USER_ID_HEADER) long userId) {
+        return itemService.getById(id, userId);
     }
 
     @PostMapping
@@ -59,5 +61,14 @@ public class ItemController {
     @DeleteMapping("/{id}")
     public Item delete(@PathVariable long id) {
         return itemService.delete(id);
+    }
+
+    @PostMapping("/{id}/comment")
+    public CommentDto comment(
+            @PathVariable long id,
+            @RequestHeader(name = USER_ID_HEADER) long userId,
+            @Valid @RequestBody CreateCommentDto dto
+    ) {
+        return itemService.comment(id, userId, dto);
     }
 }

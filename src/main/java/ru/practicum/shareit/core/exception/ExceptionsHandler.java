@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.UnsupportedStatusException;
 import ru.practicum.shareit.user.DuplicatedEmailException;
 
 import java.util.List;
@@ -42,7 +43,13 @@ public class ExceptionsHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> duplicatedExceptionHandler(DuplicatedEmailException exception) {
-        log.error(exception.getMessage());
+        log.error("Duplicated email", exception);
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler
+    public Map<String, String> unsupportedStatusExceptionHandler(UnsupportedStatusException exception) {
+        log.error("Unsupported status of booking", exception);
         return Map.of("error", exception.getMessage());
     }
 
