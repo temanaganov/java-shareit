@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CreateCommentDto;
+import ru.practicum.shareit.core.pagination.PaginationMapper;
 import ru.practicum.shareit.item.dto.CreateItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 
 import javax.validation.Valid;
@@ -29,28 +31,36 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getByUserId(@RequestHeader(name = USER_ID_HEADER) long userId) {
-        return itemService.getByUserId(userId);
+    public List<ItemDto> getByUserId(
+            @RequestHeader(name = USER_ID_HEADER) long userId,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size
+    ) {
+        return itemService.getByUserId(userId, PaginationMapper.toPageable(from, size));
     }
 
     @GetMapping("/search")
-    public List<Item> search(@RequestParam(required = false) String text) {
-        return itemService.search(text);
+    public List<ItemDto> search(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size
+    ) {
+        return itemService.search(text, PaginationMapper.toPageable(from, size));
     }
 
     @GetMapping("/{id}")
-    public Item getById(@PathVariable long id, @RequestHeader(name = USER_ID_HEADER) long userId) {
+    public ItemDto getById(@PathVariable long id, @RequestHeader(name = USER_ID_HEADER) long userId) {
         return itemService.getById(id, userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Item create(@RequestHeader(name = USER_ID_HEADER) long userId, @Valid @RequestBody CreateItemDto dto) {
+    public ItemDto create(@RequestHeader(name = USER_ID_HEADER) long userId, @Valid @RequestBody CreateItemDto dto) {
         return itemService.create(userId, dto);
     }
 
     @PatchMapping("/{id}")
-    public Item update(
+    public ItemDto update(
             @PathVariable long id,
             @RequestHeader(name = USER_ID_HEADER) long userId,
             @Valid @RequestBody UpdateItemDto dto
@@ -59,7 +69,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{id}")
-    public Item delete(@PathVariable long id) {
+    public ItemDto delete(@PathVariable long id) {
         return itemService.delete(id);
     }
 

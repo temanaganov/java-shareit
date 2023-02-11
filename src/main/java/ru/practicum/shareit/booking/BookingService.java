@@ -1,12 +1,13 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.core.exception.FieldValidationException;
 import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -19,45 +20,87 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
     private final UserService userService;
-    private final ItemService itemService;
+    private final ItemRepository itemRepository;
 
-    public List<Booking> getAllByBooker(long bookerId, String state) {
+    public List<Booking> getAllByBooker(long bookerId, String state, Pageable pageable) {
         userService.getById(bookerId);
 
         switch (state) {
             case "ALL":
-                return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
+                return bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
             case "CURRENT":
-                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                        bookerId,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "PAST":
-                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                        bookerId,
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "FUTURE":
-                return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                        bookerId,
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "WAITING":
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId,
+                        BookingStatus.WAITING,
+                        pageable
+                );
             case "REJECTED":
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId,
+                        BookingStatus.REJECTED,
+                        pageable
+                );
             default:
                 throw new UnsupportedStatusException();
         }
     }
 
-    public List<Booking> getAllByOwner(long ownerId, String state) {
+    public List<Booking> getAllByOwner(long ownerId, String state, Pageable pageable) {
         userService.getById(ownerId);
 
         switch (state) {
             case "ALL":
-                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageable);
             case "CURRENT":
-                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, LocalDateTime.now(), LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                        ownerId,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "PAST":
-                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(
+                        ownerId,
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "FUTURE":
-                return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
+                        ownerId,
+                        LocalDateTime.now(),
+                        pageable
+                );
             case "WAITING":
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                        ownerId,
+                        BookingStatus.WAITING,
+                        pageable
+                );
             case "REJECTED":
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                        ownerId,
+                        BookingStatus.REJECTED,
+                        pageable
+                );
             default:
                 throw new UnsupportedStatusException();
         }
@@ -78,7 +121,7 @@ public class BookingService {
 
     public Booking create(long userId, BookingDto dto) {
         User booker = userService.getById(userId);
-        Item item = itemService.getById(dto.getItemId(), userId);
+        Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new NotFoundException("item", dto.getItemId()));
 
         boolean isItemUnavailable = !item.getAvailable();
 

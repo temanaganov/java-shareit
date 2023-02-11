@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -13,7 +14,9 @@ import ru.practicum.shareit.comment.dto.CreateCommentDto;
 import ru.practicum.shareit.core.exception.FieldValidationException;
 import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CreateItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -32,35 +35,41 @@ public class ItemService {
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
+    private final RequestRepository requestRepository;
 
-    public List<Item> getByUserId(long userId) {
-        return itemRepository.findAllByOwnerId(userId)
+    public List<ItemDto> getByUserId(long userId, Pageable pageable) {
+        return itemRepository.findAllByOwnerId(userId, pageable)
                 .stream()
                 .map(item -> {
+                    ItemDto itemDto = itemMapper.itemToItemDto(item);
                     List<Booking> bookings = bookingRepository.findAllByItemIdOrderByStartAsc(item.getId());
-                    item.setNextBooking(bookingMapper.bookingToShortBookingDto(getNextBooking(bookings)));
-                    item.setLastBooking(bookingMapper.bookingToShortBookingDto(getLastBooking(bookings)));
-                    item.setComments(
+                    itemDto.setNextBooking(bookingMapper.bookingToShortBookingDto(getNextBooking(bookings)));
+                    itemDto.setLastBooking(bookingMapper.bookingToShortBookingDto(getLastBooking(bookings)));
+                    itemDto.setComments(
                             commentRepository.findAllByItemId(item.getId())
                                     .stream()
                                     .map(commentMapper::commentToCommentDto)
                                     .collect(Collectors.toList())
                     );
 
-                    return item;
+                    return itemDto;
                 })
                 .collect(Collectors.toList());
     }
 
-    public List<Item> search(String text) {
+    public List<ItemDto> search(String text, Pageable pageable) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
 
-        return itemRepository.findAllByText(text);
+        return itemRepository
+                .findAllByText(text, pageable)
+                .stream()
+                .map(itemMapper::itemToItemDto)
+                .collect(Collectors.toList());
     }
 
-    public Item getById(long id, long userId) {
+    public ItemDto getById(long id, long userId) {
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
 
         if (item.getOwner().getId() == userId) {
@@ -77,18 +86,25 @@ public class ItemService {
                         .collect(Collectors.toList())
         );
 
-        return item;
+        return itemMapper.itemToItemDto(item);
     }
 
-    public Item create(long userId, CreateItemDto dto) {
+    public ItemDto create(long userId, CreateItemDto dto) {
         User user = userService.getById(userId);
+
         Item newItem = itemMapper.createItemDtoToItem(dto);
         newItem.setOwner(user);
 
-        return itemRepository.save(newItem);
+        if (dto.getRequestId() != null) {
+            requestRepository.findById(dto.getRequestId()).ifPresentOrElse(newItem::setRequest, () -> {
+                throw new NotFoundException("request", dto.getRequestId());
+            });
+        }
+
+        return itemMapper.itemToItemDto(itemRepository.save(newItem));
     }
 
-    public Item update(long id, long userId, UpdateItemDto dto) {
+    public ItemDto update(long id, long userId, UpdateItemDto dto) {
         User user = userService.getById(userId);
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
 
@@ -108,13 +124,14 @@ public class ItemService {
             item.setAvailable(dto.getAvailable());
         }
 
-        return itemRepository.save(item);
+        return itemMapper.itemToItemDto(itemRepository.save(item));
     }
 
-    public Item delete(long id) {
+    public ItemDto delete(long id) {
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
         itemRepository.deleteById(id);
-        return item;
+
+        return itemMapper.itemToItemDto(item);
     }
 
     private Booking getNextBooking(List<Booking> bookings) {
@@ -137,7 +154,7 @@ public class ItemService {
         Item item = itemRepository.findById(id).orElseThrow(() -> new NotFoundException("item", id));
         User user = userService.getById(userId);
 
-        List<Booking> bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+        List<Booking> bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), null);
 
         if (bookings.isEmpty()) {
             throw new FieldValidationException("userId", "User didn't book this item");

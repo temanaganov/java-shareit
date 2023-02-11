@@ -1,8 +1,16 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Value
+@Getter
+@Builder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateItemDto {
     String name;
     String description;

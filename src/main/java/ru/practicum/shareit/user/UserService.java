@@ -23,7 +23,6 @@ public class UserService {
     }
 
     public User create(CreateUserDto dto) {
-//        checkIfEmailExists(dto.getEmail());
         User newUser = userMapper.createUserDtoToUser(dto);
 
         return userRepository.save(newUser);

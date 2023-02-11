@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Value
 public class BookingDto {
     @NotNull(message = "ItemId is required")
-    Integer itemId;
+    Long itemId;
 
     @NotNull(message = "Start is required")
     LocalDateTime start;
