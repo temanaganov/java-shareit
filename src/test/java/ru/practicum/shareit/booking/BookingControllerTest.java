@@ -95,6 +95,17 @@ public class BookingControllerTest {
     }
 
     @Test
+    void create_badRequest() throws Exception {
+        long bookerId = 1;
+        BookingDto bookingDto = new BookingDto(1L, null, null);
+        String json = objectMapper.writeValueAsString(bookingDto);
+
+        mockMvc.perform(post("/bookings").contentType(MediaType.APPLICATION_JSON).header(USER_ID_HEADER, bookerId).content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
     void update() throws Exception {
         long bookingId = 1;
         long bookerId = 1;
