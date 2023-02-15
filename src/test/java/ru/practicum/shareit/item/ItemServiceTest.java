@@ -8,6 +8,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.comment.CommentMapper;
+import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CreateCommentDto;
 import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -34,10 +41,19 @@ class ItemServiceTest {
     private RequestRepository requestRepository;
 
     @Mock
+    private BookingRepository bookingRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
+
+    @Mock
     private UserService userService;
 
     @Spy
     private ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
+
+    @Spy
+    private CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
 
     @InjectMocks
     private ItemService itemService;
@@ -159,5 +175,27 @@ class ItemServiceTest {
         ItemDto itemDto = itemService.update(itemId, userId, updateItemDto);
 
         assertThat(itemDto.getAvailable()).isFalse();
+    }
+
+    @Test
+    void comment_shouldCommentRequest() {
+        long itemId = 1;
+        long userId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        CreateCommentDto createCommentDto = new CreateCommentDto("new comment");
+
+        Mockito.when(userService.getById(userId)).thenReturn(user);
+        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        Mockito.when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                Mockito.anyLong(),
+                Mockito.any(),
+                Mockito.any()
+        )).thenReturn(List.of(new Booking(1L, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.APPROVED)));
+        Mockito.when(commentRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        CommentDto commentDto = itemService.comment(itemId, userId, createCommentDto);
+
+        assertThat(commentDto.getAuthorName()).isEqualTo(user.getName());
     }
 }
