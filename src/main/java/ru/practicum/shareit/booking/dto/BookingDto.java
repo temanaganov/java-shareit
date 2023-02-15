@@ -10,8 +10,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingDto {

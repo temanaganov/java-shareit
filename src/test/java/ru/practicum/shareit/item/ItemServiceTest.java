@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.comment.CommentMapper;
@@ -26,6 +27,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.utils.TestUtils;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,6 +56,9 @@ class ItemServiceTest {
 
     @Spy
     private CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
+
+    @Spy
+    private BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
     @InjectMocks
     private ItemService itemService;
@@ -209,5 +214,19 @@ class ItemServiceTest {
         Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         assertThat(itemService.delete(itemId)).isEqualTo(itemMapper.itemToItemDto(item));
+    }
+
+    @Test
+    void getById_should() {
+        long itemId = 1;
+        long userId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+
+        Mockito.when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(item));
+        Mockito.when(bookingRepository.findAllByItemIdOrderByStartAsc(Mockito.anyLong())).thenReturn(Collections.emptyList());
+        Mockito.when(commentRepository.findAllByItemId(Mockito.anyLong())).thenReturn(Collections.emptyList());
+
+        assertThat(itemService.getById(itemId, userId)).isEqualTo(itemMapper.itemToItemDto(item));
     }
 }
