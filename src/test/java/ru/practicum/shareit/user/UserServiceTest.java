@@ -10,6 +10,7 @@ import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.utils.TestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -86,5 +87,28 @@ class UserServiceTest {
         Mockito.when(userRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         assertThat(userService.update(id, dto)).isEqualTo(newUser);
+    }
+
+    @Test
+    void getAll_shouldReturnListOfUsers() {
+        List<User> users = List.of(
+                TestUtils.makeUser(1),
+                TestUtils.makeUser(2),
+                TestUtils.makeUser(3)
+        );
+
+        Mockito.when(userRepository.findAll()).thenReturn(users);
+
+        assertThat(userService.getAll()).isEqualTo(users);
+    }
+
+    @Test
+    void delete_shouldReturnDeletedUser() {
+        long userId = 1;
+        User user = TestUtils.makeUser(userId);
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThat(userService.delete(userId)).isEqualTo(user);
     }
 }
