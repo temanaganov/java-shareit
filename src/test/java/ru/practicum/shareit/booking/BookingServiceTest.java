@@ -210,4 +210,60 @@ class BookingServiceTest {
 
         assertThat(booking).hasFieldOrProperty("id");
     }
+
+    @Test
+    void update_shouldThrowNotFoundIfBookingIsNotExists() {
+        long bookingId = 1;
+        long userId = 1;
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.update(bookingId, userId, true)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void update_shouldThrowNotFoundIfUserIsNotOwner() {
+        long bookingId = 1;
+        long userId = 1;
+        long itemId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        Booking booking = new Booking(bookingId, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.WAITING);
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThatThrownBy(() -> bookingService.update(bookingId, 2, true)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void update_shouldThrowFieldValidationExceptionIfBookingIsAlreadyApproved() {
+        long bookingId = 1;
+        long userId = 1;
+        long itemId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        Booking booking = new Booking(bookingId, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.APPROVED);
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThatThrownBy(() -> bookingService.update(bookingId, userId, true)).isInstanceOf(FieldValidationException.class);
+    }
+
+    @Test
+    void update_shouldUpdateBookingToApproved() {
+        long bookingId = 1;
+        long userId = 1;
+        long itemId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        Booking booking = new Booking(bookingId, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.WAITING);
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        Mockito.when(bookingRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        booking = bookingService.update(bookingId, userId, true);
+
+        assertThat(booking.getStatus()).isEqualTo(BookingStatus.APPROVED);
+
+    }
 }

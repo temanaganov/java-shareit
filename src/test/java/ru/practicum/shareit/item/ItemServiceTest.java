@@ -198,4 +198,16 @@ class ItemServiceTest {
 
         assertThat(commentDto.getAuthorName()).isEqualTo(user.getName());
     }
+
+    @Test
+    void delete_shouldDeleteItemAndReturnDeletedItem() {
+        long itemId = 1;
+        long userId = 1;
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+
+        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        assertThat(itemService.delete(itemId)).isEqualTo(itemMapper.itemToItemDto(item));
+    }
 }
