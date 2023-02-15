@@ -264,6 +264,45 @@ class BookingServiceTest {
         booking = bookingService.update(bookingId, userId, true);
 
         assertThat(booking.getStatus()).isEqualTo(BookingStatus.APPROVED);
+    }
 
+    @Test
+    void getById_shouldThrowNotFoundExceptionIfBookingIsNotExists() {
+        long bookingId = 1;
+        long userId = 1;
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bookingService.getById(bookingId, userId)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void getById_shouldThrowNotFoundExceptionIfUserIsNotOwner() {
+        long bookingId = 1;
+        long userId = 1;
+        long itemId = 1;
+
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        Booking booking = new Booking(bookingId, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.WAITING);
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThatThrownBy(() -> bookingService.getById(bookingId, 2)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void getById_shouldReturnBooking() {
+        long bookingId = 1;
+        long userId = 1;
+        long itemId = 1;
+
+        User user = TestUtils.makeUser(userId);
+        Item item = TestUtils.makeItem(itemId, true, user);
+        Booking booking = new Booking(bookingId, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.WAITING);
+
+        Mockito.when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThat(bookingService.getById(bookingId, userId)).isEqualTo(booking);
     }
 }
