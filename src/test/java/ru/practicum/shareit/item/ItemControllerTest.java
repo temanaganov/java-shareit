@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -67,7 +67,7 @@ class ItemControllerTest {
                 TestUtils.makeItem(3, true, null)
         ).map(itemMapper::itemToItemDto).collect(Collectors.toList());
 
-        Mockito.when(itemService.getByUserId(Mockito.anyLong(), Mockito.any())).thenReturn(items);
+        when(itemService.getByUserId(anyLong(), any())).thenReturn(items);
 
         mockMvc.perform(get("/items").header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
@@ -78,7 +78,7 @@ class ItemControllerTest {
     void getByUserId_shouldReturnNotFound() throws Exception {
         long userId = 1;
 
-        Mockito.when(itemService.getByUserId(Mockito.anyLong(), Mockito.any())).thenThrow(new NotFoundException("user", userId));
+        when(itemService.getByUserId(anyLong(), any())).thenThrow(new NotFoundException("user", userId));
 
         mockMvc.perform(get("/items").header(USER_ID_HEADER, userId))
                 .andExpect(status().isNotFound());
@@ -97,7 +97,7 @@ class ItemControllerTest {
                 TestUtils.makeItem(3, true, null)
         ).map(itemMapper::itemToItemDto).collect(Collectors.toList());
 
-        Mockito.when(itemService.search(Mockito.anyString(), Mockito.any())).thenReturn(items);
+        when(itemService.search(anyString(), any())).thenReturn(items);
 
         mockMvc.perform(get("/items/search").queryParam("text", "test"))
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class ItemControllerTest {
         long userId = 1;
         ItemDto item = itemMapper.itemToItemDto(TestUtils.makeItem(itemId, true, null));
 
-        Mockito.when(itemService.getById(itemId, userId)).thenReturn(item);
+        when(itemService.getById(itemId, userId)).thenReturn(item);
 
         mockMvc.perform(get("/items/" + itemId).header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ class ItemControllerTest {
         long itemId = 1;
         long userId = 1;
 
-        Mockito.when(itemService.getById(itemId, userId)).thenThrow(new NotFoundException("item", itemId));
+        when(itemService.getById(itemId, userId)).thenThrow(new NotFoundException("item", itemId));
 
         mockMvc.perform(get("/items/" + itemId).header(USER_ID_HEADER, userId))
                 .andExpect(status().isNotFound());
@@ -136,7 +136,7 @@ class ItemControllerTest {
         CreateItemDto dto = TestUtils.makeCreateItemDto(true, 1L);
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(itemService.create(userId, dto)).thenReturn(item);
+        when(itemService.create(userId, dto)).thenReturn(item);
 
         mockMvc.perform(post("/items")
                         .header(USER_ID_HEADER, userId)
@@ -155,7 +155,7 @@ class ItemControllerTest {
         UpdateItemDto dto = new UpdateItemDto(item.getName(), item.getDescription(), item.getAvailable());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(itemService.update(itemId, userId, dto)).thenReturn(item);
+        when(itemService.update(itemId, userId, dto)).thenReturn(item);
 
         mockMvc.perform(patch("/items/" + itemId)
                         .header(USER_ID_HEADER, userId)
@@ -174,7 +174,7 @@ class ItemControllerTest {
         UpdateItemDto dto = new UpdateItemDto(item.getName(), item.getDescription(), item.getAvailable());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(itemService.update(itemId, userId, dto)).thenThrow(new NotFoundException("item", itemId));
+        when(itemService.update(itemId, userId, dto)).thenThrow(new NotFoundException("item", itemId));
 
         mockMvc.perform(patch("/items/" + itemId)
                         .header(USER_ID_HEADER, userId)
@@ -189,7 +189,7 @@ class ItemControllerTest {
         long itemId = 1;
         ItemDto item = itemMapper.itemToItemDto(TestUtils.makeItem(itemId, true, null));
 
-        Mockito.when(itemService.delete(itemId)).thenReturn(item);
+        when(itemService.delete(itemId)).thenReturn(item);
 
         mockMvc.perform(delete("/items/" + itemId))
                 .andExpect(status().isOk())
@@ -200,7 +200,7 @@ class ItemControllerTest {
     void delete_shouldReturnNotFound() throws Exception {
         long itemId = 1;
 
-        Mockito.when(itemService.delete(itemId)).thenThrow(new NotFoundException("item", itemId));
+        when(itemService.delete(itemId)).thenThrow(new NotFoundException("item", itemId));
 
         mockMvc.perform(delete("/items/" + itemId))
                 .andExpect(status().isNotFound());
@@ -219,7 +219,7 @@ class ItemControllerTest {
                 .build();
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(itemService.comment(itemId, userId, dto)).thenReturn(comment);
+        when(itemService.comment(itemId, userId, dto)).thenReturn(comment);
 
         mockMvc.perform(post("/items/" + itemId + "/comment")
                         .header(USER_ID_HEADER, userId)

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.Booking;
@@ -33,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -80,14 +80,14 @@ class ItemServiceTest {
                 .map(itemMapper::itemToItemDto)
                 .collect(Collectors.toList());
 
-        Mockito.when(itemRepository.findAllByText(Mockito.anyString(), Mockito.any())).thenReturn(items);
+        when(itemRepository.findAllByText(anyString(), any())).thenReturn(items);
         assertThat(itemService.search("text", null)).isEqualTo(itemDtos);
     }
 
     @Test
     void create_shouldThrowNotFoundExceptionIfUserIsNotExists() {
         long userId = 1;
-        Mockito.when(userService.getById(userId)).thenThrow(NotFoundException.class);
+        when(userService.getById(userId)).thenThrow(NotFoundException.class);
         assertThatThrownBy(() -> itemService.create(userId, null)).isInstanceOf(NotFoundException.class);
     }
 
@@ -99,9 +99,9 @@ class ItemServiceTest {
         Request request = TestUtils.makeRequest(requestId, LocalDateTime.now(), user);
         CreateItemDto createItemDto = TestUtils.makeCreateItemDto(true, requestId);
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(requestRepository.findById(userId)).thenReturn(Optional.of(request));
-        Mockito.when(itemRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.getById(userId)).thenReturn(user);
+        when(requestRepository.findById(userId)).thenReturn(Optional.of(request));
+        when(itemRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         ItemDto itemDto = itemService.create(userId, createItemDto);
 
@@ -116,7 +116,7 @@ class ItemServiceTest {
         long itemId = 1;
         long userId = 1;
 
-        Mockito.when(userService.getById(userId)).thenThrow(NotFoundException.class);
+        when(userService.getById(userId)).thenThrow(NotFoundException.class);
 
         assertThatThrownBy(() -> itemService.update(itemId, userId, null)).isInstanceOf(NotFoundException.class);
     }
@@ -126,7 +126,7 @@ class ItemServiceTest {
         long itemId = 1;
         long userId = 1;
 
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> itemService.update(itemId, userId, null)).isInstanceOf(NotFoundException.class);
     }
@@ -139,9 +139,9 @@ class ItemServiceTest {
         Item item = TestUtils.makeItem(itemId, true, user);
         UpdateItemDto updateItemDto = new UpdateItemDto("new name", null, null);
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        Mockito.when(itemRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         ItemDto itemDto = itemService.update(itemId, userId, updateItemDto);
 
@@ -156,9 +156,9 @@ class ItemServiceTest {
         Item item = TestUtils.makeItem(itemId, true, user);
         UpdateItemDto updateItemDto = new UpdateItemDto(null, "new description", null);
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        Mockito.when(itemRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         ItemDto itemDto = itemService.update(itemId, userId, updateItemDto);
 
@@ -173,9 +173,9 @@ class ItemServiceTest {
         Item item = TestUtils.makeItem(itemId, true, user);
         UpdateItemDto updateItemDto = new UpdateItemDto(null, null, false);
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        Mockito.when(itemRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         ItemDto itemDto = itemService.update(itemId, userId, updateItemDto);
 
@@ -190,14 +190,14 @@ class ItemServiceTest {
         Item item = TestUtils.makeItem(itemId, true, user);
         CreateCommentDto createCommentDto = new CreateCommentDto("new comment");
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        Mockito.when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
-                Mockito.anyLong(),
-                Mockito.any(),
-                Mockito.any()
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                anyLong(),
+                any(),
+                any()
         )).thenReturn(List.of(new Booking(1L, LocalDateTime.now(), LocalDateTime.now(), item, user, BookingStatus.APPROVED)));
-        Mockito.when(commentRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(commentRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         CommentDto commentDto = itemService.comment(itemId, userId, createCommentDto);
 
@@ -211,7 +211,7 @@ class ItemServiceTest {
         User user = TestUtils.makeUser(userId);
         Item item = TestUtils.makeItem(itemId, true, user);
 
-        Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         assertThat(itemService.delete(itemId)).isEqualTo(itemMapper.itemToItemDto(item));
     }
@@ -223,9 +223,9 @@ class ItemServiceTest {
         User user = TestUtils.makeUser(userId);
         Item item = TestUtils.makeItem(itemId, true, user);
 
-        Mockito.when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(item));
-        Mockito.when(bookingRepository.findAllByItemIdOrderByStartAsc(Mockito.anyLong())).thenReturn(Collections.emptyList());
-        Mockito.when(commentRepository.findAllByItemId(Mockito.anyLong())).thenReturn(Collections.emptyList());
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(bookingRepository.findAllByItemIdOrderByStartAsc(anyLong())).thenReturn(Collections.emptyList());
+        when(commentRepository.findAllByItemId(anyLong())).thenReturn(Collections.emptyList());
 
         assertThat(itemService.getById(itemId, userId)).isEqualTo(itemMapper.itemToItemDto(item));
     }

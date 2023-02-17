@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +17,7 @@ import ru.practicum.shareit.core.exception.ExceptionsHandler;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class BookingControllerTest {
+class BookingControllerTest {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     private MockMvc mockMvc;
@@ -45,10 +45,10 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllByBooker() throws Exception {
+    void getAllByBookerTest() throws Exception {
         long bookerId = 1;
 
-        Mockito.when(bookingService.getAllByBooker(Mockito.anyLong(), Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
+        when(bookingService.getAllByBooker(anyLong(), any(), any())).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/bookings").header(USER_ID_HEADER, bookerId))
                 .andExpect(status().isOk())
@@ -56,10 +56,10 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllByOwner() throws Exception {
+    void getAllByOwnerTest() throws Exception {
         long bookerId = 1;
 
-        Mockito.when(bookingService.getAllByOwner(Mockito.anyLong(), Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
+        when(bookingService.getAllByOwner(anyLong(), any(), any())).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/bookings/owner").header(USER_ID_HEADER, bookerId))
                 .andExpect(status().isOk())
@@ -67,12 +67,12 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getById() throws Exception {
+    void getByIdTest() throws Exception {
         long bookingId = 1;
         long bookerId = 1;
         Booking booking = new Booking(bookingId, null, null, null, null, null);
 
-        Mockito.when(bookingService.getById(Mockito.anyLong(), Mockito.anyLong())).thenReturn(booking);
+        when(bookingService.getById(anyLong(), anyLong())).thenReturn(booking);
 
         mockMvc.perform(get("/bookings/" + bookingId).header(USER_ID_HEADER, bookerId))
                 .andExpect(status().isOk())
@@ -80,14 +80,21 @@ public class BookingControllerTest {
     }
 
     @Test
-    void create() throws Exception {
+    void createTest() throws Exception {
         long bookingId = 1;
         long bookerId = 1;
-        Booking booking = new Booking(bookingId, null, null, null, null, null);
-        BookingDto bookingDto = new BookingDto(1L, LocalDateTime.now(), LocalDateTime.now());
+
+        BookingDto bookingDto = new BookingDto(1L, null, null);
         String json = objectMapper.writeValueAsString(bookingDto);
 
-        Mockito.when(bookingService.create(Mockito.anyLong(), Mockito.any())).thenReturn(booking);
+        mockMvc.perform(post("/bookings").contentType(MediaType.APPLICATION_JSON).header(USER_ID_HEADER, bookerId).content(json))
+                .andExpect(status().isBadRequest());
+
+        Booking booking = new Booking(bookingId, null, null, null, null, null);
+        bookingDto = new BookingDto(1L, LocalDateTime.now(), LocalDateTime.now());
+        json = objectMapper.writeValueAsString(bookingDto);
+
+        when(bookingService.create(anyLong(), any())).thenReturn(booking);
 
         mockMvc.perform(post("/bookings").contentType(MediaType.APPLICATION_JSON).header(USER_ID_HEADER, bookerId).content(json))
                 .andExpect(status().isCreated())
@@ -95,23 +102,12 @@ public class BookingControllerTest {
     }
 
     @Test
-    void create_badRequest() throws Exception {
-        long bookerId = 1;
-        BookingDto bookingDto = new BookingDto(1L, null, null);
-        String json = objectMapper.writeValueAsString(bookingDto);
-
-        mockMvc.perform(post("/bookings").contentType(MediaType.APPLICATION_JSON).header(USER_ID_HEADER, bookerId).content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    void update() throws Exception {
+    void updateTest() throws Exception {
         long bookingId = 1;
         long bookerId = 1;
         Booking booking = new Booking(bookingId, null, null, null, null, null);
 
-        Mockito.when(bookingService.update(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyBoolean())).thenReturn(booking);
+        when(bookingService.update(anyLong(), anyLong(), anyBoolean())).thenReturn(booking);
 
         mockMvc.perform(patch("/bookings/" + bookingId)
                         .contentType(MediaType.APPLICATION_JSON)

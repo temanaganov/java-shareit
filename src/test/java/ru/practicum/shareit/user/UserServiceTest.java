@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.core.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -25,7 +25,7 @@ class UserServiceTest {
 
     @Test
     void getById_shouldThrowNotFoundException() {
-        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> userService.getById(1)).isInstanceOf(NotFoundException.class);
     }
 
@@ -33,13 +33,13 @@ class UserServiceTest {
     void getById_shouldReturnUser() {
         long id = 1;
         User user = TestUtils.makeUser(id);
-        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
         assertThat(userService.getById(id)).isEqualTo(user);
     }
 
     @Test
     void update_shouldThrowNotFoundException() {
-        Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> userService.getById(1)).isInstanceOf(NotFoundException.class);
     }
 
@@ -53,8 +53,8 @@ class UserServiceTest {
         User newUser = TestUtils.makeUser(id);
         newUser.setEmail(newEmail);
 
-        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         assertThat(userService.update(id, dto)).isEqualTo(newUser);
     }
@@ -67,8 +67,8 @@ class UserServiceTest {
         UpdateUserDto dto = new UpdateUserDto(null, newEmail);
         User user = TestUtils.makeUser(id);
 
-        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.findByEmail(newEmail)).thenReturn(Optional.of(user));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(newEmail)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> userService.update(id, dto)).isInstanceOf(DuplicatedEmailException.class);
     }
@@ -83,8 +83,8 @@ class UserServiceTest {
         User newUser = TestUtils.makeUser(id);
         newUser.setName(newName);
 
-        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         assertThat(userService.update(id, dto)).isEqualTo(newUser);
     }
@@ -97,7 +97,7 @@ class UserServiceTest {
                 TestUtils.makeUser(3)
         );
 
-        Mockito.when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.findAll()).thenReturn(users);
 
         assertThat(userService.getAll()).isEqualTo(users);
     }
@@ -107,7 +107,7 @@ class UserServiceTest {
         long userId = 1;
         User user = TestUtils.makeUser(userId);
 
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThat(userService.delete(userId)).isEqualTo(user);
     }

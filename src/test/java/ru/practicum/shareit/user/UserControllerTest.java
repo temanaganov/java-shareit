@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +20,7 @@ import ru.practicum.shareit.utils.TestUtils;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -55,7 +55,7 @@ class UserControllerTest {
                 TestUtils.makeUser(3)
         );
 
-        Mockito.when(userService.getAll()).thenReturn(users);
+        when(userService.getAll()).thenReturn(users);
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -66,7 +66,7 @@ class UserControllerTest {
     void getAll_shouldReturnEmptyList() throws Exception {
         List<User> users = Collections.emptyList();
 
-        Mockito.when(userService.getAll()).thenReturn(users);
+        when(userService.getAll()).thenReturn(users);
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -83,7 +83,7 @@ class UserControllerTest {
     void getById_shouldReturnNotFound() throws Exception {
         long userId = 1;
 
-        Mockito.when(userService.getById(userId)).thenThrow(new NotFoundException("user", userId));
+        when(userService.getById(userId)).thenThrow(new NotFoundException("user", userId));
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isNotFound());
@@ -94,7 +94,7 @@ class UserControllerTest {
         long userId = 1;
         User user = TestUtils.makeUser(userId);
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
+        when(userService.getById(userId)).thenReturn(user);
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class UserControllerTest {
         CreateUserDto dto = new CreateUserDto(user.getName(), user.getEmail());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(userService.create(dto)).thenReturn(user);
+        when(userService.create(dto)).thenReturn(user);
 
         mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated())
@@ -122,7 +122,7 @@ class UserControllerTest {
         UpdateUserDto dto = new UpdateUserDto(user.getName(), user.getEmail());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(userService.update(userId, dto)).thenReturn(user);
+        when(userService.update(userId, dto)).thenReturn(user);
 
         mockMvc.perform(patch("/users/" + userId).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ class UserControllerTest {
         UpdateUserDto dto = new UpdateUserDto(user.getName(), user.getEmail());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(userService.update(userId, dto)).thenThrow(new NotFoundException("user", userId));
+        when(userService.update(userId, dto)).thenThrow(new NotFoundException("user", userId));
 
         mockMvc.perform(patch("/users/" + userId).contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isNotFound());
@@ -146,7 +146,7 @@ class UserControllerTest {
     void delete_shouldReturnNotFound() throws Exception {
         long userId = 1;
 
-        Mockito.when(userService.delete(userId)).thenThrow(new NotFoundException("user", userId));
+        when(userService.delete(userId)).thenThrow(new NotFoundException("user", userId));
 
         mockMvc.perform(delete("/users/" + userId)).andExpect(status().isNotFound());
     }
@@ -156,7 +156,7 @@ class UserControllerTest {
         long userId = 1;
         User user = TestUtils.makeUser(userId);
 
-        Mockito.when(userService.delete(userId)).thenReturn(user);
+        when(userService.delete(userId)).thenReturn(user);
 
         mockMvc.perform(delete("/users/" + userId))
                 .andExpect(status().isOk())

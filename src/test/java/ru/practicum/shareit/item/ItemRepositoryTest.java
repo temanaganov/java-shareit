@@ -15,7 +15,7 @@ import javax.persistence.TypedQuery;
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase
 class ItemRepositoryTest {
     @Autowired
     private TestEntityManager em;

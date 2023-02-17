@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +19,7 @@ import ru.practicum.shareit.utils.TestUtils;
 
 import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -52,7 +52,7 @@ class RequestControllerTest {
         CreateRequestDto dto = new CreateRequestDto(request.getDescription());
         String json = objectMapper.writeValueAsString(dto);
 
-        Mockito.when(requestService.createRequest(dto, userId)).thenReturn(request);
+        when(requestService.createRequest(dto, userId)).thenReturn(request);
 
         mockMvc.perform(post("/requests")
                         .header(USER_ID_HEADER, userId)
@@ -72,7 +72,7 @@ class RequestControllerTest {
                 TestUtils.makeRequestDto(3)
         );
 
-        Mockito.when(requestService.getOwnRequests(userId)).thenReturn(requests);
+        when(requestService.getOwnRequests(userId)).thenReturn(requests);
 
         mockMvc.perform(get("/requests").header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
@@ -88,7 +88,7 @@ class RequestControllerTest {
                 TestUtils.makeRequestDto(3)
         );
 
-        Mockito.when(requestService.getOtherRequests(Mockito.anyLong(), Mockito.any())).thenReturn(requests);
+        when(requestService.getOtherRequests(anyLong(), any())).thenReturn(requests);
 
         mockMvc.perform(get("/requests/all").header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class RequestControllerTest {
         long requestId = 1;
         RequestDto request = TestUtils.makeRequestDto(requestId);
 
-        Mockito.when(requestService.getById(requestId, userId)).thenReturn(request);
+        when(requestService.getById(requestId, userId)).thenReturn(request);
 
         mockMvc.perform(get("/requests/" + requestId).header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class RequestControllerTest {
         long userId = 1;
         long requestId = 1;
 
-        Mockito.when(requestService.getById(requestId, userId)).thenThrow(new NotFoundException("request", requestId));
+        when(requestService.getById(requestId, userId)).thenThrow(new NotFoundException("request", requestId));
 
         mockMvc.perform(get("/requests/" + requestId).header(USER_ID_HEADER, userId))
                 .andExpect(status().isNotFound());

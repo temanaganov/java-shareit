@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.core.exception.NotFoundException;
@@ -24,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RequestServiceTest {
@@ -51,8 +51,8 @@ class RequestServiceTest {
         User user = TestUtils.makeUser(userId);
         CreateRequestDto createRequestDto = new CreateRequestDto("New request");
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(requestRepository.save(Mockito.any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userService.getById(userId)).thenReturn(user);
+        when(requestRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         RequestDto requestDto = requestService.createRequest(createRequestDto, userId);
 
@@ -66,7 +66,7 @@ class RequestServiceTest {
         long userId = 1;
         CreateRequestDto createRequestDto = new CreateRequestDto("New request");
 
-        Mockito.when(userService.getById(userId)).thenThrow(NotFoundException.class);
+        when(userService.getById(userId)).thenThrow(NotFoundException.class);
 
         assertThatThrownBy(() -> {
             requestService.createRequest(createRequestDto, userId);
@@ -83,9 +83,9 @@ class RequestServiceTest {
                 TestUtils.makeRequest(3, LocalDateTime.now(), user)
         );
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findAllByRequestId(Mockito.anyLong())).thenReturn(Collections.emptyList());
-        Mockito.when(requestRepository.findAllByUserIdOrderByCreatedDesc(Mockito.anyLong())).thenReturn(requests);
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(Collections.emptyList());
+        when(requestRepository.findAllByUserIdOrderByCreatedDesc(anyLong())).thenReturn(requests);
 
         assertThat(requestService.getOwnRequests(userId)).isEqualTo(requests
                 .stream()
@@ -106,9 +106,9 @@ class RequestServiceTest {
                 TestUtils.makeRequest(3, LocalDateTime.now(), user)
         );
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findAllByRequestId(Mockito.anyLong())).thenReturn(Collections.emptyList());
-        Mockito.when(requestRepository.findAllByUserIdIsNotOrderByCreatedDesc(Mockito.anyLong(), Mockito.any())).thenReturn(requests);
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(Collections.emptyList());
+        when(requestRepository.findAllByUserIdIsNotOrderByCreatedDesc(anyLong(), any())).thenReturn(requests);
 
         assertThat(requestService.getOtherRequests(userId, null)).isEqualTo(requests
                 .stream()
@@ -128,9 +128,9 @@ class RequestServiceTest {
         RequestDto requestDto = requestMapper.requestToRequestDto(request);
         requestDto.setItems(Collections.emptyList());
 
-        Mockito.when(userService.getById(userId)).thenReturn(user);
-        Mockito.when(itemRepository.findAllByRequestId(Mockito.anyLong())).thenReturn(Collections.emptyList());
-        Mockito.when(requestRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(request));
+        when(userService.getById(userId)).thenReturn(user);
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(Collections.emptyList());
+        when(requestRepository.findById(anyLong())).thenReturn(Optional.of(request));
 
         assertThat(requestService.getById(requestId, userId)).isEqualTo(requestDto);
     }
