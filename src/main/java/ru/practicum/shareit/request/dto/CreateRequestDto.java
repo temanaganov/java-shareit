@@ -1,4 +1,4 @@
-package ru.practicum.shareit.comment.dto;
+package ru.practicum.shareit.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCommentDto {
-    @NotBlank(message = "Text is required")
-    private String text;
+public class CreateRequestDto {
+    @NotBlank(message = "Description is required")
+    private String description;
 }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.core.pagination.PaginationMapper;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,17 +28,21 @@ public class BookingController {
     @GetMapping
     public List<Booking> getAllByBooker(
             @RequestHeader(name = USER_ID_HEADER) long bookerId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size
     ) {
-        return bookingService.getAllByBooker(bookerId, state);
+        return bookingService.getAllByBooker(bookerId, state, PaginationMapper.toPageable(from, size));
     }
 
     @GetMapping("/owner")
     public List<Booking> getAllByOwner(
             @RequestHeader(name = USER_ID_HEADER) long ownerId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(required = false) Integer from,
+            @RequestParam(required = false) Integer size
     ) {
-        return bookingService.getAllByOwner(ownerId, state);
+        return bookingService.getAllByOwner(ownerId, state, PaginationMapper.toPageable(from, size));
     }
 
     @GetMapping("/{bookingId}")
@@ -44,6 +51,7 @@ public class BookingController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Booking create(@RequestHeader(name = USER_ID_HEADER) long userId, @Valid @RequestBody BookingDto dto) {
         return bookingService.create(userId, dto);
     }

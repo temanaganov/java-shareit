@@ -7,6 +7,15 @@ CREATE TABLE IF NOT EXISTS users
     name    VARCHAR(50)        NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS request
+(
+    request_id  INTEGER AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255) NOT NULL,
+    created     TIMESTAMP    NOT NULL,
+    user_id     INTEGER      NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS item
 (
     item_id     INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -14,7 +23,9 @@ CREATE TABLE IF NOT EXISTS item
     description VARCHAR(255) NOT NULL,
     available   BOOLEAN      NOT NULL,
     owner_id    INTEGER      NOT NULL,
-    FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE CASCADE
+    request_id  INTEGER,
+    FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (request_id) REFERENCES request (request_id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS booking

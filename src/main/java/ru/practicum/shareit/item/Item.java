@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.Column;
@@ -40,6 +41,10 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private Request request;
 
     @Transient
     private ShortBookingDto lastBooking;
