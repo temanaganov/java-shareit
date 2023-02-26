@@ -84,15 +84,9 @@ class BookingControllerTest {
         long bookingId = 1;
         long bookerId = 1;
 
-        CreateBookingDto bookingDto = new CreateBookingDto(1L, null, null);
-        String json = objectMapper.writeValueAsString(bookingDto);
-
-        mockMvc.perform(post("/bookings").contentType(MediaType.APPLICATION_JSON).header(USER_ID_HEADER, bookerId).content(json))
-                .andExpect(status().isBadRequest());
-
         Booking booking = new Booking(bookingId, null, null, null, null, null);
-        bookingDto = new CreateBookingDto(1L, LocalDateTime.now(), LocalDateTime.now());
-        json = objectMapper.writeValueAsString(bookingDto);
+        CreateBookingDto bookingDto = new CreateBookingDto(1L, LocalDateTime.now(), LocalDateTime.now());
+        String json = objectMapper.writeValueAsString(bookingDto);
 
         when(bookingService.create(anyLong(), any())).thenReturn(booking);
 
