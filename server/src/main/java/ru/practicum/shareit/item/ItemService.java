@@ -38,7 +38,7 @@ public class ItemService {
     private final RequestRepository requestRepository;
 
     public List<ItemDto> getByUserId(long userId, Pageable pageable) {
-        return itemRepository.findAllByOwnerId(userId, pageable)
+        return itemRepository.findAllByOwnerIdOrderById(userId, pageable)
                 .stream()
                 .map(item -> {
                     ItemDto itemDto = itemMapper.itemToItemDto(item);

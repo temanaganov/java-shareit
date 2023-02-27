@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findAllByOwnerId(Long ownerId, Pageable pageable);
+    List<Item> findAllByOwnerIdOrderById(Long ownerId, Pageable pageable);
 
     @Query("select i " +
             "from Item i " +
