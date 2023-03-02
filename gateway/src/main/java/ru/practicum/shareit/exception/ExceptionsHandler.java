@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +24,12 @@ public class ExceptionsHandler {
                 .stream()
                 .map(error -> new FieldError(error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
+    }
+
+    @ExceptionHandler
+    public FieldError constraintValidationExceptionHandler(ConstraintViolationException exception) {
+        log.error("Invalid arguments", exception);
+        return new FieldError("", exception.getMessage());
     }
 
     @ExceptionHandler
