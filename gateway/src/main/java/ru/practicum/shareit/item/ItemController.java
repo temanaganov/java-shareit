@@ -23,6 +23,7 @@ import ru.practicum.shareit.item.dto.UpdateItemDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Collections;
 
 @Slf4j
 @Validated
@@ -44,10 +45,14 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(
-            @RequestParam(required = false) String text,
+            @RequestParam String text,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "20") Integer size
     ) {
+        if (text.isBlank()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
         return itemClient.search(text, from, size);
     }
 

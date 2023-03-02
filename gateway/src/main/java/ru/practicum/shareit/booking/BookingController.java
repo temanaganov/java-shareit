@@ -36,8 +36,7 @@ public class BookingController {
 			@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
 			@Positive @RequestParam(name = "size", defaultValue = "20") Integer size
 	) {
-		BookingState state = BookingState.from(stateParam)
-				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+		BookingState state = checkBookingState(stateParam);
 		log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
 		return bookingClient.getAllByBooker(userId, state, from, size);
 	}
@@ -49,8 +48,7 @@ public class BookingController {
 			@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
 			@Positive @RequestParam(name = "size", defaultValue = "20") Integer size
 	) {
-		BookingState state = BookingState.from(stateParam)
-				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+		BookingState state = checkBookingState(stateParam);
 		log.info("Get booking with state {}, ownerId={}, from={}, size={}", stateParam, ownerId, from, size);
 		return bookingClient.getAllByOwner(ownerId, state, from, size);
 	}
@@ -78,5 +76,9 @@ public class BookingController {
 	) {
 		log.info("Update booking {}, userId={}", approved, ownerId);
 		return bookingClient.update(bookingId, ownerId, approved);
+	}
+
+	private BookingState checkBookingState(String stateParam) {
+		return BookingState.from(stateParam).orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
 	}
 }
