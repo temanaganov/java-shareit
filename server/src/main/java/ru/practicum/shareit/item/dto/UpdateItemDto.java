@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateItemDto {
-    String name;
-    String description;
-    Boolean available;
+    private String name;
+    private String description;
+    private Boolean available;
 }
